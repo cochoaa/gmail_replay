@@ -1,5 +1,5 @@
 from __future__ import print_function
-
+import html_parse
 import os.path
 import pprint
 import base64
@@ -16,6 +16,48 @@ SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
 labelId = os.environ['labelId']
 attName = os.environ['attName']
+
+# def filter_html(part):
+#     return part.mimeType == 'text/html';
+
+def get_registro_solicitud(parts):
+    parts_filter = filter(lambda part: part.get('parts'), parts)
+    parts=list(parts_filter)
+    print('****************************')
+    parts_body=parts[0].get('parts',[])
+    #part = parts.filter(filter_html,
+    parts_body_filter=filter(lambda part:part.get('mimeType') == 'text/html',parts_body)
+    parts_body_html=list(parts_body_filter)
+    data=list(parts_body_html)[0].get('body').get('data')
+    decrypted = base64.urlsafe_b64decode(data)
+    #decrypted = base64.b64decode(data).decode('ASCII')
+    print('html')
+    html = decrypted.decode('utf-8')
+    print(html)
+    registro=html_parse.get_registro_solicitud(html)
+    return (registro)
+
+def get_script_sql(service,msg_id:str,att_id:str):
+    att = service.users().messages().attachments().get(userId='me', messageId=msg_id,id=att_id).execute()
+    data = att['data']
+    script = base64.b64decode(data).decode('utf-8')
+    return script
+
+def get_attachmentId(parts):
+    parts_filter=filter(lambda part:part.get('filename').startswith(attName), parts)
+    parts=list(parts_filter)
+    part=parts[0]
+    att_id = part['body']['attachmentId']
+    return att_id
+    # for part in parts:
+    #     print('--------------------------------------------')
+    #     pprint.pprint(part)
+    #     if part.get('parts'):
+    #         print('Tienes parts:')
+    #         get_part_no_attachment(part.get('parts'))
+    #     if part.get('filename').startswith(attName):
+    #         print(part.get('filename'))
+    #         att_id = part['body']['attachmentId']
 
 def main():
     """Shows basic usage of the Gmail API.
@@ -64,18 +106,30 @@ def main():
             print(email.get('internalDate'))
             # timestamp = datetime.datetime.fromtimestamp(int(email.get('internalDate')))
             # print(timestamp)
-            for part in email.get('payload').get('parts',[]):
-                #print(part)
-                if part.get('filename').startswith(attName):
-                    pprint.pprint(part)
-                    print(part.get('filename'))
-                    att_id = part['body']['attachmentId']
-                    att = service.users().messages().attachments().get(userId='me', messageId=msg_id,
-                                                                       id=att_id).execute()
-                    data = att['data']
-                    decrypted = base64.b64decode(data).decode('utf-8')
-                    print(type(decrypted))
-                    print(decrypted)
+            parts=email.get('payload').get('parts',[])
+            print('Size parts:'+str(len(parts)))
+            datos=get_registro_solicitud(parts)
+            for dato in datos:
+                print(dato)
+            att_id=get_attachmentId(parts)
+            print('att_id:' + att_id)
+            script = get_script_sql(service, msg_id, att_id)
+            print('script:' + script)
+            # for part in parts:
+            #     print('--------------------------------------------')
+            #     pprint.pprint(part)
+            #     if part.get('parts'):
+            #         print('Tienes parts:')
+            #         get_part_no_attachment(part.get('parts'))
+            #     if part.get('filename').startswith(attName):
+            #         print(part.get('filename'))
+            #         att_id = part['body']['attachmentId']
+            #         script=get_script_sql(service,msg_id,att_id)
+                    # att = service.users().messages().attachments().get(userId='me', messageId=msg_id,
+                    #                                                    id=att_id).execute()
+                    # data = att['data']
+                    # script = base64.b64decode(data).decode('utf-8')
+                    #print(script)
 
         # if not labels:
         #     print('No labels found.')
