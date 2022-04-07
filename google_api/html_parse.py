@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 
 def get_registro_solicitud (html:str):
     html=html.replace("<br>", "")
-    soup = BeautifulSoup(html,"xml")
+    soup = BeautifulSoup(html,"html.parser")
     rows=soup.find_all('tr')
     values=rows[1]
     columns=values.find_all("td")
