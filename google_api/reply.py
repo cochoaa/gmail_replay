@@ -31,9 +31,9 @@ def get_registro_solicitud(parts):
     data=list(parts_body_html)[0].get('body').get('data')
     decrypted = base64.urlsafe_b64decode(data)
     #decrypted = base64.b64decode(data).decode('ASCII')
-    print('html')
+    #print('html')
     html = decrypted.decode('utf-8')
-    print(html)
+    #print(html)
     registro=html_parse.get_registro_solicitud(html)
     return (registro)
 
@@ -60,24 +60,23 @@ def get_attachmentId(parts):
     #         att_id = part['body']['attachmentId']
 
 def main():
-    """Shows basic usage of the Gmail API.
-    Lists the user's Gmail labels.
-    """
+    url_token="keys/token.json"
+    url_credentials = "keys/credentials.json"
     creds = None
     # The file credentials.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
-    if os.path.exists('credentials.json'):
-        creds = Credentials.from_authorized_user_file('keys/credentials.json', SCOPES)
+    if os.path.exists(url_token):
+        creds = Credentials.from_authorized_user_file(url_token, SCOPES)
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file('keys/credentials.json', SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file(url_credentials, SCOPES)
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
-        with open('credentials.json', 'w') as token:
+        with open(url_token, 'w') as token:
             token.write(creds.to_json())
 
     try:
@@ -97,6 +96,11 @@ def main():
             #print(m)
             email = service.users().messages().get(userId='me',id=m.get('id')).execute()
             #pprint.pprint(email)
+            headers = email["payload"]["headers"]
+            #pprint.pprint(headers)
+            subject = [i['value'] for i in headers if i["name"] == "Subject"].pop(0)
+            print(type(subject))
+            print(subject)
             msg_id=email.get('id')
             print(email.get('id'))
             print(email.get('labelIds'))

@@ -1,0 +1,14 @@
+version: '3.7'
+services:
+   gmail_api:
+      build: ./
+      hostname: gmail_api
+      stdin_open: true
+      tty: true
+      ports:
+         - "0.0.0.0:8080:8080"
+         - "0.0.0.0:1395:1395"
+      env_file:
+         - ./.env
+      volumes:
+        - ./keys:/app/keys
