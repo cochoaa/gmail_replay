@@ -17,9 +17,6 @@ SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 labelId = os.environ['labelId']
 attName = os.environ['attName']
 
-# def filter_html(part):
-#     return part.mimeType == 'text/html';
-
 def get_registro_solicitud(parts):
     parts_filter = filter(lambda part: part.get('parts'), parts)
     parts=list(parts_filter)
@@ -49,19 +46,9 @@ def get_attachmentId(parts):
     part=parts[0]
     att_id = part['body']['attachmentId']
     return att_id
-    # for part in parts:
-    #     print('--------------------------------------------')
-    #     pprint.pprint(part)
-    #     if part.get('parts'):
-    #         print('Tienes parts:')
-    #         get_part_no_attachment(part.get('parts'))
-    #     if part.get('filename').startswith(attName):
-    #         print(part.get('filename'))
-    #         att_id = part['body']['attachmentId']
-
-def main():
-    url_token="keys/token.json"
-    url_credentials = "keys/credentials.json"
+def get_credentials(path="keys"):
+    url_token = f"{path}/token.json"
+    url_credentials = f"{path}/credentials.json"
     creds = None
     # The file credentials.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
@@ -78,7 +65,9 @@ def main():
         # Save the credentials for the next run
         with open(url_token, 'w') as token:
             token.write(creds.to_json())
-
+    return creds
+def main():
+    creds=get_credentials("keys")
     try:
         # Call the Gmail API
         service = build('gmail', 'v1', credentials=creds)
@@ -89,7 +78,6 @@ def main():
         results = service.users().messages().list(userId='me',maxResults=10,labelIds=['INBOX','UNREAD',labelId]).execute()
         print(labelId)
         messages = results.get('messages', [])
-        nextPageToken = results.get('nextPageToken','')
         resultSizeEstimate = results.get('resultSizeEstimate','')
         print('Cantidad de resultados: '+str(resultSizeEstimate))
         for m in messages:
@@ -118,28 +106,6 @@ def main():
             print('att_id:' + att_id)
             script = get_script_sql(service, msg_id, att_id)
             print('script:' + script)
-            # for part in parts:
-            #     print('--------------------------------------------')
-            #     pprint.pprint(part)
-            #     if part.get('parts'):
-            #         print('Tienes parts:')
-            #         get_part_no_attachment(part.get('parts'))
-            #     if part.get('filename').startswith(attName):
-            #         print(part.get('filename'))
-            #         att_id = part['body']['attachmentId']
-            #         script=get_script_sql(service,msg_id,att_id)
-                    # att = service.users().messages().attachments().get(userId='me', messageId=msg_id,
-                    #                                                    id=att_id).execute()
-                    # data = att['data']
-                    # script = base64.b64decode(data).decode('utf-8')
-                    #print(script)
-
-        # if not labels:
-        #     print('No labels found.')
-        #     return
-        # print('messages:')
-        # for label in labels:
-        #     print(label['name'])
 
     except HttpError as error:
         # TODO(developer) - Handle errors from gmail API.
