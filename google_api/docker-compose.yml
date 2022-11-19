@@ -2,6 +2,7 @@ version: '3.7'
 services:
    gmail_api:
       build: ./
+      container_name: gmail_api
       hostname: gmail_api
 #      stdin_open: true
 #      tty: true
