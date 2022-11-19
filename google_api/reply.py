@@ -1,13 +1,10 @@
 from __future__ import print_function
 import html_parse
 import os.path
+import auth
 import pprint
 import base64
-import io
 import datetime
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
@@ -46,28 +43,9 @@ def get_attachmentId(parts):
     part=parts[0]
     att_id = part['body']['attachmentId']
     return att_id
-def get_credentials(path="keys"):
-    url_token = f"{path}/token.json"
-    url_credentials = f"{path}/credentials.json"
-    creds = None
-    # The file credentials.json stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first
-    # time.
-    if os.path.exists(url_token):
-        creds = Credentials.from_authorized_user_file(url_token, SCOPES)
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(url_credentials, SCOPES)
-            creds = flow.run_local_server(port=0)
-        # Save the credentials for the next run
-        with open(url_token, 'w') as token:
-            token.write(creds.to_json())
-    return creds
+
 def main():
-    creds=get_credentials("keys")
+    creds=auth.get_credentials("keys",SCOPES)
     try:
         # Call the Gmail API
         service = build('gmail', 'v1', credentials=creds)
