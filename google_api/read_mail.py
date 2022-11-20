@@ -86,3 +86,11 @@ def get_mails(credentials):
         print(f'An error occurred: {error}')
 
     return mails
+
+def mark_as_read(credentials, msg_id):
+    try:
+        service = build('gmail', 'v1', credentials=credentials)
+        service.users().messages().modify(userId='me', id=msg_id, body={'removeLabelIds': ['UNREAD']}).execute()
+    except HttpError as error:
+        # TODO(developer) - Handle errors from gmail API.
+        print(f'An error occurred: {error}')
