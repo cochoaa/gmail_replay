@@ -13,16 +13,17 @@ class MailScript():
         self.script = script
 
     def __repr__(self):
-        return f"MailScript(" \
-               f"fecha={self.fecha!r}, " \
-               f"msgid={self.msgid!r}, " \
-               f"subject={self.subject!r}, " \
-               f"sender={self.sender!r}," \
-               f"area={self.area!r}," \
-               f"solicitante={self.solicitante!r}," \
-               f"dependencia={self.dependencia!r}," \
-               f"motivo={self.motivo!r}," \
-               f"script={self.script!r})"
+        return f"MailScript(\n" \
+               f"fecha={self.fecha!r},\n" \
+               f"msgid={self.msgid!r}, \n" \
+               f"subject={self.subject!r}, \n" \
+               f"sender={self.sender!r}, \n" \
+               f"area={self.area!r}, \n" \
+               f"solicitante={self.solicitante!r}, \n" \
+               f"dependencia={self.dependencia!r}, \n" \
+               f"motivo={self.motivo!r}, \n" \
+               f"script={self.script!r}) \n" \
+               f")"
 
 if __name__ == '__main__':
     mail=MailScript('id','Fwd: SOLICITUD DE EJECUCIÓN DE SCRIPT - PROYECTO QUIPUCAMAYOC- ANULACIÓN DE EXPEDIENTE DE OS',
