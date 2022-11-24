@@ -3,8 +3,9 @@ from googleapiclient.errors import HttpError
 import datetime
 import os.path
 import base64
+import re
 #from __future__ import print_function
-import pprint
+from pprint import pprint
 import html_parse
 from models import MailScript
 
@@ -40,6 +41,11 @@ def __get_attachmentId(parts):
     att_id = part['body']['attachmentId']
     return att_id
 
+def __extract_email(mail_from:str):
+    pattern='(?:"?([^"]*)"?\s)?(?:<?(.+@[^>]+)>?)';
+    match=re.search(pattern, mail_from)
+    return match.group(2)
+
 def __get_mail(msg_id,service):
     email = service.users().messages().get(userId='me', id=msg_id).execute()
     # pprint.pprint(email)
@@ -47,6 +53,7 @@ def __get_mail(msg_id,service):
     #pprint.pprint(email)
     subject = [i['value'] for i in headers if i["name"] == "Subject"].pop(0)
     sender = [i['value'] for i in headers if i["name"] == "From"].pop(0)
+    sender = __extract_email(sender)
     historyId=email.get('historyId')
     print(f'El history_id del mensaje: {historyId}')
     timestamp = datetime.datetime.fromtimestamp(int(email.get('internalDate'))/1000)
@@ -78,7 +85,6 @@ def get_mails(credentials):
             print(f'El thread_id del mensaje: {thread_id}')
 
             mail=__get_mail(msg_id, service)
-            print(mail)
             mails.append(mail)
 
     except HttpError as error:
