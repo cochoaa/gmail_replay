@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+from unidecode import unidecode
 
 def get_registro_solicitud (html:str):
     html=html.replace("<br>", "")
@@ -6,7 +7,7 @@ def get_registro_solicitud (html:str):
     rows=soup.find_all('tr')
     values=rows[1]
     columns=values.find_all("td")
-    iterator = map(lambda data:str(data.string), columns)
+    iterator = map(lambda data:unidecode(data.string), columns)
     return list(iterator)
 
 if __name__ == '__main__':
