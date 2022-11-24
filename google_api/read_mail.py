@@ -29,17 +29,22 @@ def __get_registro_solicitud(parts):
     return (registro)
 
 def __get_script_sql(service,msg_id:str,att_id:str):
-    att = service.users().messages().attachments().get(userId='me', messageId=msg_id,id=att_id).execute()
-    data = att['data']
-    script = base64.b64decode(data).decode('utf-8')
-    return script
-
+    try:
+        att = service.users().messages().attachments().get(userId='me', messageId=msg_id,id=att_id).execute()
+        data = att['data']
+        script = base64.b64decode(data).decode('utf-8')
+        return script
+    except:
+        return ''
 def __get_attachmentId(parts):
-    parts_filter=filter(lambda part:part.get('filename').startswith(attName), parts)
-    parts=list(parts_filter)
-    part=parts[0]
-    att_id = part['body']['attachmentId']
-    return att_id
+    try:
+        parts_filter=filter(lambda part:part.get('filename').startswith(attName), parts)
+        parts=list(parts_filter)
+        part=parts[0]
+        att_id = part['body']['attachmentId']
+        return att_id
+    except:
+        return ''
 
 def __extract_email(mail_from:str):
     pattern='(?:"?([^"]*)"?\s)?(?:<?(.+@[^>]+)>?)';
