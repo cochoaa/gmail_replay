@@ -14,7 +14,7 @@ class MailScript():
 
     def __repr__(self):
         return f"MailScript(\n" \
-               f"fecha={self.fecha!r},\n" \
+               f"fecha={str(self.fecha)!r},\n" \
                f"msgid={self.msgid!r}, \n" \
                f"subject={self.subject!r}, \n" \
                f"sender={self.sender!r}, \n" \
